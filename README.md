@@ -12,28 +12,45 @@ Run `/status` in Claude Code, or:
 python -m src.registry.registry status
 ```
 
-## First steps on the database machine
+## Connecting to the database through the bridge
 
-1. Fill the `UNSET` values in `registry/databases.yaml` and `configs/project.yaml`.
-2. Install the safety hooks:
+The Claude session that runs this work may not be able to reach the database. `tools/vivax_bridge.py` is one file that runs on a machine that can (for example a Mac on the hospital VPN) and serves each query the session sends. It needs Python 3, git with access to this repository, and SQLcl with a saved connection. It asks for no password.
 
-```bash
-bash scripts/install_hooks.sh
-```
-
-3. Prove the connection works without a password prompt (reads no patient table):
+**The repository must be private first.** Queries and results travel through it. The bridge refuses to run while it is public.
 
 ```bash
-python -m src.db.smoke --db vivax-oracle-01
+python3 vivax_bridge.py setup
 ```
 
-4. Run the dictionary audit (Phase 1, step 1; scans no data table):
+```bash
+python3 vivax_bridge.py run
+```
+
+By default it shows each query that reads data tables and waits for `y`. `run --auto` removes that prompt. Dictionary queries are always automatic. Stop it with Ctrl-C. What it enforces is listed at the top of the file and in `DECISIONS.md` D015.
+
+On the session side:
 
 ```bash
 python -m src.audit.dictionary --db vivax-oracle-01
 ```
 
-Then stop at GATE 1 and review `docs/audits/vivax-oracle-01/`.
+## Running directly on a machine that reaches the database
+
+Set `connection.transport: direct`, the connection mode, alias and schema in `registry/databases.yaml`, then:
+
+```bash
+bash scripts/install_hooks.sh
+```
+
+```bash
+python -m src.db.smoke --db vivax-oracle-01
+```
+
+```bash
+python -m src.audit.dictionary --db vivax-oracle-01
+```
+
+Either way, stop at GATE 1 and review `docs/audits/vivax-oracle-01/`.
 
 ## Commands
 

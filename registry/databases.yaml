@@ -7,9 +7,13 @@ databases:
     engine: oracle                 # oracle | postgresql | sqlserver | mysql
     connection:
       tool: sqlcl
-      mode: UNSET                  # saved (sql -name <alias>) | wallet (sql /@<alias>)
-      alias: UNSET
-    schema: UNSET
+      # bridge: queries travel through tools/vivax_bridge.py on a machine that can
+      #   reach the database; the connection name and schema are held there, not here.
+      # direct: this machine runs SQLcl itself; then set mode, alias and schema.
+      transport: bridge
+      mode: on-bridge              # direct only: saved (sql -name <alias>) | wallet (sql /@<alias>)
+      alias: on-bridge
+    schema: on-bridge
     owner: UNSET                   # person accountable for this database
     site_column: UNSET             # column that identifies the site, or "unknown"
     ethics:

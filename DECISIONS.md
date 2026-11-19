@@ -38,3 +38,16 @@ Besides patterns learned from the audit (`configs/patient_id_patterns.txt`, empt
 
 ## D012 (2026-11-19) Study repositories are scaffolded locally, created remotely by command
 `scripts/new_study.py` builds the study repository on disk and refuses unless the idea is `approved` and the hub tree is clean. Creating the GitHub repository is a separate step in `/start-study`, always `--private`, and only after the lead agrees to the name and description. In this cloud session GitHub access is limited to the hub repository, so `/start-study` must run where the lead has authenticated `gh`.
+
+## D013 (2026-11-19) The hub repository is public; nothing but code may be pushed until it is private
+A check on 2026-11-19 showed `ArioMoniri/research` is a public repository. Only code, rules and empty registries have been pushed. Schema details, queries and aggregate results must not be pushed while it is public (the "nothing public" rule). Both ends of the bridge refuse to work while the repository is anonymously readable. Needs lead: make the repository private. Claude does not change visibility.
+
+## D014 (2026-11-19) A bridge on the lead's Mac instead of a session on the database machine
+The database is reachable only from the lead's Mac over VPN, the lead does not want to work from a clone there, and a cloud session cannot attach to that Mac. The lead asked for one file that serves each request dynamically. `tools/vivax_bridge.py` does this: it polls the repository outbound, so nothing listens on the Mac and no VPN or database credential leaves it. It keeps a small working copy of the repository under `~/.vivax-bridge/` as its transport; the lead was told. Rejected alternatives: exposing the database or a query service to the internet, and placing VPN credentials in the cloud container.
+
+## D015 (2026-11-19) What the bridge enforces, and what it cannot
+Enforced on the Mac, before anything is committed: one read-only statement; two modes (`dictionary`: listed dictionary views only; `aggregate`: must aggregate and name its group-size column); groups under 10 removed (the key of a small group can identify someone, so the row is dropped rather than shown with `<10`); other declared counts under 10 shown as `<10`; at most 5000 rows; cells at most 120 characters; no identifier-like column names; no valid Turkish national ID numbers; ten-minute cap; no database links or network packages. It executes SQL only, never repository code, and never updates itself. By default it asks at its terminal before each aggregate query; `--auto` removes the prompt.
+Not enforceable in general: a query that groups by a patient identifier under an innocent alias, with groups of 10 or more events, would pass the filters. The protection there is rule 1 binding the session that writes the query, the terminal prompt, and the git record of every request. Needs lead: choose prompt or `--auto`.
+
+## D016 (2026-11-19) Null counts are withheld in SQL when fewer than 10 values are non-null
+Because bridge results are committed to git, suppression of the dictionary audit now happens before the data leaves the Mac. The column query returns no null count when fewer than 10 rows are non-null (it would reveal the small number by subtraction) and flags the column instead. The same query is used for direct connections.

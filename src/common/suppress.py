@@ -9,6 +9,11 @@ THRESHOLD = 10
 SMALL = "<10"
 
 
+def is_small(value) -> bool:
+    """True for a value that arrived already suppressed (for example from the bridge)."""
+    return isinstance(value, str) and value.strip().startswith("<")
+
+
 def to_int(value) -> int | None:
     if value is None:
         return None
@@ -23,20 +28,31 @@ def to_int(value) -> int | None:
 
 def count(value, threshold: int = THRESHOLD) -> str:
     """Display form of a count. Empty string means 'not available'."""
+    if is_small(value):
+        return f"<{threshold}"
     n = to_int(value)
     if n is None:
         return ""
     return f"<{threshold}" if n < threshold else str(n)
 
 
-def completeness(num_rows, num_nulls, floor: float = 0.60, threshold: int = THRESHOLD):
+def completeness(num_rows, num_nulls, floor: float = 0.60, threshold: int = THRESHOLD,
+                 nearly_all_null: bool = False):
     """Return (nulls_display, non_null_pct_display, flag) without revealing a small count.
 
     flag is one of: ok, under, indeterminate, no_stats.
     When a count is suppressed, the percentage is given as a bound that does
     not let the reader recover the count.
     """
-    n, nulls = to_int(num_rows), to_int(num_nulls)
+    if is_small(num_rows):
+        return "suppressed", "suppressed", "indeterminate"
+    n = to_int(num_rows)
+    if n is not None and n >= threshold:
+        if nearly_all_null:   # the source withheld the null count: fewer than 10 non-null
+            num_nulls = n
+        elif is_small(num_nulls):
+            num_nulls = 0     # any value under the threshold gives the same bound
+    nulls = to_int(num_nulls)
     if n is None or nulls is None:
         return "", "", "no_stats"
     if n < threshold:

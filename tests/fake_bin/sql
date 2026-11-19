@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Stand-in for SQLcl in tests. Serves canned CSVs; contacts nothing."""
+import os, re, shutil, sys
+script = open([a for a in sys.argv if a.startswith("@")][0][1:]).read()
+out = re.search(r'SPOOL "([^"]+)"', script).group(1)
+fx = os.environ["FAKE_SQL_FIXTURES"]
+if "{SCHEMA}" in script:
+    sys.exit(3)  # the bridge must have substituted the schema
+names = {"all_tables": "tables", "all_tab_columns": "columns", "all_part_tables": "part_tables",
+         "all_part_key_columns": "part_keys", "all_constraints": "constraints",
+         "all_cons_columns": "cons_columns", "all_indexes": "indexes", "all_ind_columns": "ind_columns",
+         "all_tab_comments": "tab_comments", "all_col_comments": "col_comments", "dual": "dual",
+         "t_event": "agg", "t_note": "notes", "t_ids": "ids"}
+m = re.search(r"\bFROM\s+(?:\w+\.)?(\w+)", script, re.I)
+src = os.path.join(fx, names.get(m.group(1).lower(), "missing") + ".csv")
+if not os.path.exists(src):
+    print("ORA-00942: table or view does not exist")
+    sys.exit(1)
+shutil.copy(src, out)

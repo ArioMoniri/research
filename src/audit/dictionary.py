@@ -99,7 +99,8 @@ def build(data: dict[str, list[dict]], floor: float, threshold: int) -> dict[str
         t = r["table_name"]
         if t not in real_tables:  # views and other objects are listed separately
             continue
-        nulls, pct, flag = suppress.completeness(rows_of.get(t), r.get("num_nulls"), floor, threshold)
+        nulls, pct, flag = suppress.completeness(rows_of.get(t), r.get("num_nulls"), floor, threshold,
+                                                 nearly_all_null=r.get("nearly_all_null", "").upper() == "Y")
         row = {
             "table": t, "column_id": r.get("column_id", ""), "column": r["column_name"],
             "data_type": r.get("data_type", ""), "length": r.get("data_length", ""),

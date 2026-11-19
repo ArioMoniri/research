@@ -20,7 +20,12 @@ _ERR = re.compile(r"\b(ORA-\d{5}|SP2-\d{4}|SQLcl-\d+|PLS-\d{5})\b")
 class OracleAdapter(Adapter):
     engine = "oracle"
 
+    def _via_bridge(self) -> bool:
+        return (self.entry.get("connection") or {}).get("transport") == "bridge"
+
     def _schema(self) -> str:
+        if self._via_bridge():
+            return "{SCHEMA}"  # filled in by the bridge; the schema name stays on that machine
         return identifier(require(self.entry.get("schema"), "database schema"), "schema").upper()
 
     def _connect_args(self) -> list[str]:
@@ -61,11 +66,18 @@ class OracleAdapter(Adapter):
                 FROM all_tables WHERE {own}"""],
             # low_value, high_value and histograms are deliberately not selected:
             # they hold real data values.
+            # The threshold 10 below is the small-cell rule: when fewer than 10 rows are
+            # non-null, the null count is withheld so it cannot be subtracted back.
             "columns": [f"""
-                SELECT table_name, column_id, column_name, data_type, data_length,
-                       data_precision, data_scale, nullable, num_distinct, num_nulls,
-                       TO_CHAR(last_analyzed, 'YYYY-MM-DD') AS last_analyzed, sample_size
-                FROM all_tab_columns WHERE {own}"""],
+                SELECT c.table_name, c.column_id, c.column_name, c.data_type, c.data_length,
+                       c.data_precision, c.data_scale, c.nullable, c.num_distinct,
+                       CASE WHEN t.num_rows - c.num_nulls < 10 THEN NULL ELSE c.num_nulls END AS num_nulls,
+                       CASE WHEN t.num_rows >= 10 AND t.num_rows - c.num_nulls < 10
+                            THEN 'Y' ELSE 'N' END AS nearly_all_null,
+                       TO_CHAR(c.last_analyzed, 'YYYY-MM-DD') AS last_analyzed
+                FROM all_tab_columns c
+                LEFT JOIN all_tables t ON t.owner = c.owner AND t.table_name = c.table_name
+                WHERE c.owner = '{s}'"""],
             # Oracle has no ALL_SEGMENTS. Try DBA_SEGMENTS, then USER_SEGMENTS
             # (valid only when connected as the schema owner).
             "segments": [
@@ -109,6 +121,17 @@ class OracleAdapter(Adapter):
     def run_to_csv(self, sql: str, out_path: Path, timeout_s: int = 600) -> None:
         body = assert_read_only(sql)
         out_path = Path(out_path).resolve()
+        if self._via_bridge():
+            from ..bridge import client
+            opts = dict(self.entry.get("bridge_client_options") or {})
+            if "repo" in opts:
+                opts["repo"] = Path(opts["repo"])
+            _, text = client.query(body, "dictionary", db=str(self.entry.get("id", "")),
+                                   count_columns=("NUM_ROWS", "NUM_NULLS", "SAMPLE_SIZE"),
+                                   purpose="dictionary audit", timeout_s=min(timeout_s, 600),
+                                   **opts)
+            out_path.write_text(text, encoding="utf-8")
+            return
         if '"' in str(out_path):
             raise QueryFailed("output path must not contain a double quote")
         with tempfile.TemporaryDirectory() as tmp:

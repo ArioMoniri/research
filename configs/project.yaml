@@ -5,6 +5,7 @@ project_lead: UNSET          # who approves gates
 gpu_host: UNSET              # host that receives extracts
 extract_path: UNSET          # path on gpu_host for MEDS extracts
 primary_database: vivax-oracle-01
+github_repo: ArioMoniri/research   # must be private before any query or result is pushed
 
 small_cell_threshold: 10     # counts below this are written as "<10" (rule 1)
 completeness_floor: 0.60     # fields below this stop the pipeline (rule 6)

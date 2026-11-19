@@ -60,6 +60,17 @@ must survive an audit.
   databases is never joined or pooled unless `ethics.pooling_with_other_databases`
   in the registry allows it. The default is separate training with federated or
   merged models.
+- **The bridge.** This session may not be able to reach the database. Queries
+  then go through `src/bridge/client.py` to `tools/vivax_bridge.py`, which runs on
+  a machine that can. Every request is a committed file in `bridge/requests/`
+  and every answer a committed, filtered file in `results/bridge/`. Two modes
+  only: `dictionary` (dictionary views) and `aggregate` (must aggregate, must
+  name its group-size column; groups under 10 are removed). Never try to get a
+  row, an identifier or note text through it, and never alias a column to slip
+  past its filters. State the cost estimate in every aggregate request.
+- **Private repository first.** Queries and results are pushed to GitHub, so the
+  hub repository must be private before anything goes through the bridge. Both
+  ends refuse while it is public. Only the lead changes visibility.
 - **Runs on a clean tree.** Commit before a run that produces results, so the
   commit in RUNLOG.md identifies the code exactly.
 
@@ -81,6 +92,8 @@ must survive an audit.
 | `src/db/` | Engine adapters (Oracle implemented; PostgreSQL, SQL Server, MySQL are stubs) and the read-only guard |
 | `src/audit/` | Audit code. Writes `results/audit/<db>/<date>/` and `docs/audits/<db>/` |
 | `src/registry/` | Registry validation and the `/status` table |
+| `tools/vivax_bridge.py`, `src/bridge/` | The bridge (runs near the database) and its client (runs here) |
+| `bridge/requests/`, `results/bridge/` | Each query sent through the bridge and its filtered answer |
 | `sql/` | Reviewed SQL for later audit steps and the export |
 | `prompts/`, `prompts/reviews/` | Study prompts and each review round |
 | `results/`, `figures/`, `manuscripts/`, `docs/`, `logs/` | Aggregate outputs only |
