@@ -1,0 +1,34 @@
+# Data never enters this repository.
+data/
+extracts/
+meds/
+*.parquet
+*.pq
+*.feather
+*.arrow
+*.dmp
+*.dump
+*.bak
+*.sql.gz
+*.sqlite
+*.db
+# Credentials and wallets
+.env
+*.sso
+*.p12
+*.jks
+tnsnames.ora
+sqlnet.ora
+# CSV is allowed only under results/ and for PROVENANCE.csv
+*.csv
+!results/**/*.csv
+!PROVENANCE.csv
+!tests/fixtures/**/*.csv
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# Local scratch
+logs/*.log
+tmp/

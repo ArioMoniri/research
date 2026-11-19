@@ -1,0 +1,3 @@
+"TABLE_NAME","TABLE_TYPE","COMMENTS"
+"T_PERSON","TABLE","synthetic test table"
+"V_SOMEVIEW","VIEW",

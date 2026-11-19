@@ -1,0 +1,32 @@
+# One entry per database. No credentials, ever: only the name of a saved
+# SQLcl connection or wallet alias. UNSET means the project lead has not
+# supplied the value yet; code refuses to run until it is filled.
+databases:
+  - id: vivax-oracle-01
+    title: De-identified multi-site hospital records (Oracle)
+    engine: oracle                 # oracle | postgresql | sqlserver | mysql
+    connection:
+      tool: sqlcl
+      mode: UNSET                  # saved (sql -name <alias>) | wallet (sql /@<alias>)
+      alias: UNSET
+    schema: UNSET
+    owner: UNSET                   # person accountable for this database
+    site_column: UNSET             # column that identifies the site, or "unknown"
+    ethics:
+      approved: true
+      covers_publication: true
+      pooling_with_other_databases: false   # default; change only with written approval
+      reference: UNSET             # approval number and date
+      source: "Kickoff brief, 2026-11-19. The approval document itself has not been recorded here."
+    # Stated in the kickoff brief. None of this has been measured; do not cite it.
+    unverified_description:
+      patients: "about 1.2 million"
+      sites: "more than five"
+      history_per_patient: "estimated 8 to 15 years"
+      content: "dated ICD-10 diagnoses, medications, lab results with values, clinical notes"
+      drug_and_lab_coding: "unknown"
+    last_audit: null               # date of the most recent audit
+    audit_path: null               # docs/audits/<id>/data_audit_<date>.md
+    audit_results_path: null       # results/audit/<id>/<date>/
+    privacy_path: null
+    node_card_path: null

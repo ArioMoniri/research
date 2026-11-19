@@ -1,0 +1,13 @@
+# Project-level settings. A value of UNSET blocks every step that needs it;
+# code must fail with a clear message instead of guessing.
+# Never put credentials in this file.
+project_lead: UNSET          # who approves gates
+gpu_host: UNSET              # host that receives extracts
+extract_path: UNSET          # path on gpu_host for MEDS extracts
+primary_database: vivax-oracle-01
+
+small_cell_threshold: 10     # counts below this are written as "<10" (rule 1)
+completeness_floor: 0.60     # fields below this stop the pipeline (rule 6)
+long_query_minutes: 10       # ask the lead before anything expected to exceed this (rule 3)
+seeds: [0, 1, 2]             # rule 5
+bootstrap_ci: 0.95

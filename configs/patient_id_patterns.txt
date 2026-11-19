@@ -1,0 +1,5 @@
+# One Python regular expression per line. Lines starting with # are ignored.
+# The pre-commit check blocks any text file that matches one of these.
+# Filled from the database audit (Phase 1) once the patient-ID format is known.
+# The Turkish national ID (TC Kimlik No, 11 digits with checksum) is always
+# checked in code and does not need a line here.

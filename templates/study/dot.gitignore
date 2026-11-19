@@ -1,0 +1,27 @@
+# Data never enters this repository.
+data/
+extracts/
+meds/
+*.parquet
+*.pq
+*.feather
+*.arrow
+*.dmp
+*.dump
+*.bak
+*.sql.gz
+*.sqlite
+*.db
+*.pt
+*.ckpt
+*.safetensors
+checkpoints/
+.env
+*.sso
+*.p12
+*.csv
+!results/**/*.csv
+!PROVENANCE.csv
+__pycache__/
+*.pyc
+.venv/

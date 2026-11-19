@@ -1,0 +1,140 @@
+# One entry per research idea.
+# layer: model | test | harness | data
+# status: proposed | reviewed | approved | running | written | submitted | dropped
+#   Only the project lead sets "approved".
+# fields: what the idea needs from the data, in plain terms until an audit
+#   maps them to real columns; then fields_verified_against_audit becomes true.
+# verdicts: filled by /review-idea, one key per reviewer:
+#   {verdict: pass | minor | blocking, round: N, report: prompts/reviews/...}
+ideas:
+- id: P1
+  title: Transportability of trajectory models
+  claim: Delphi-style and ETHOS-style trajectory models retrained on our data at three sizes give calibrated,
+    decision-relevant risk estimates for eight conditions, by sex, age and site.
+  layer: model
+  databases:
+  - vivax-oracle-01
+  fields:
+  - patient identifier
+  - dated diagnoses (ICD-10)
+  - medications with dates
+  - lab results with numeric values and units
+  - sex
+  - age or birth year
+  - site
+  - death date and source
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Baselines; calibration and net benefit; scaling curve; age-standardised comparison with published
+    cohorts.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null
+- id: P2
+  title: Open benchmark on MEDS
+  claim: About 18 tasks in three families (next clinical action, forecasting, intervention response),
+    written as declarative configs, run unchanged on any MEDS dataset.
+  layer: test
+  databases:
+  - vivax-oracle-01
+  fields:
+  - patient identifier
+  - dated diagnoses (ICD-10)
+  - medications with dates
+  - lab results with numeric values and units
+  - sex
+  - age or birth year
+  - site
+  - procedures or orders (for next-action tasks)
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Leaderboard and container submission.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null
+- id: P3
+  title: World model against randomised trials
+  claim: An action-conditioned patient model reproduces the direction and size of effect in a frozen list
+    of ten randomised trials, including three null results.
+  layer: model
+  databases:
+  - vivax-oracle-01
+  fields:
+  - patient identifier
+  - dated diagnoses (ICD-10)
+  - medications with dates
+  - lab results with numeric values and units
+  - sex
+  - age or birth year
+  - site
+  - treatment start and stop dates
+  - death date and source
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Trial emulation; negative controls; action-ablation comparator.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null
+- id: P4
+  title: Federation by model merging
+  claim: Site-trained models from a shared start, merged several ways, approach pooled training and federated
+    averaging while keeping per-site calibration and passing membership-inference and canary tests.
+  layer: harness
+  databases:
+  - vivax-oracle-01
+  fields: &id001
+  - patient identifier
+  - dated diagnoses (ICD-10)
+  - medications with dates
+  - lab results with numeric values and units
+  - sex
+  - age or birth year
+  - site
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Needs a reliable site identifier; each site must be large enough to train on.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null
+- id: P5
+  title: Committee of simulators
+  claim: A learned router over three models that differ in kind beats a uniform average of the same models,
+    including on worst-case errors.
+  layer: harness
+  databases:
+  - vivax-oracle-01
+  fields: *id001
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Depends on models from P1 and P3.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null
+- id: P6
+  title: Planning stress test
+  claim: Search over simulated treatments exploits model error in identifiable ways; measured retrospectively
+    only.
+  layer: test
+  databases:
+  - vivax-oracle-01
+  fields:
+  - patient identifier
+  - dated diagnoses (ICD-10)
+  - medications with dates
+  - lab results with numeric values and units
+  - sex
+  - age or birth year
+  - site
+  - treatment start and stop dates
+  fields_verified_against_audit: false
+  status: proposed
+  origin: kickoff brief 2026-11-19
+  notes: Year two. Depends on P3.
+  prompt_path: null
+  verdicts: {}
+  study_repo: null

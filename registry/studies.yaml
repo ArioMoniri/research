@@ -1,0 +1,4 @@
+# One entry per started study. Written by /start-study.
+# Fields: id, idea, repo_url, hub_commit (hub commit the study was created from),
+#         venue (null until the lead chooses), phase.
+studies: []
